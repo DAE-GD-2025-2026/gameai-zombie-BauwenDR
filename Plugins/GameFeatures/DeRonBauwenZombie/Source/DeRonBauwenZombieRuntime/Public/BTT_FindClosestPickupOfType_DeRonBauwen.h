@@ -1,0 +1,28 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "Items/ItemType.h"
+#include "BTT_FindClosestPickupOfType_DeRonBauwen.generated.h"
+
+UCLASS()
+class DERONBAUWENZOMBIERUNTIME_API UBTT_FindClosestPickupOfType_DeRonBauwen final : public UBTTaskNode
+{
+	GENERATED_BODY()
+	
+public:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	EItemType TargetItemType;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	FBlackboardKeySelector ClosestItemPtrKey;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	FBlackboardKeySelector ResultItemKey;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Search")
+	float MaxSearchDistance = 5000.0f;
+};

@@ -25,7 +25,8 @@ public class DeRonBauwenZombieRuntime : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", 
+				nameof(GameAI_Zombie),
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,7 +39,8 @@ public class DeRonBauwenZombieRuntime : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-				"AIModule"
+				"AIModule",
+				nameof(GameAI_Zombie)
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
