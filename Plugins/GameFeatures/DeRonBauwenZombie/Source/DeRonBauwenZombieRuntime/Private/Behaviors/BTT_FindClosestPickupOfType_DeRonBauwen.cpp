@@ -1,9 +1,10 @@
-#include "BTT_FindClosestPickupOfType_DeRonBauwen.h"
+#include "Behaviors/BTT_FindClosestPickupOfType_DeRonBauwen.h"
 
 #include "AIController.h"
 #include "EngineUtils.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Common/InventoryComponent.h"
+#include "DeRonBauwenZombieRuntime/StudentPerceptor_DeRonBauwen.h"
 
 #include "Items/BaseItem.h"
 

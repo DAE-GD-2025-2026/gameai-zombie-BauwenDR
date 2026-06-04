@@ -1,4 +1,4 @@
-#include "TBD_OwnsItemOfType_DeRonBauwen.h"
+#include "Behaviors/TBD_OwnsItemOfType_DeRonBauwen.h"
 
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "AIController.h"

@@ -1,4 +1,4 @@
-#include "BTT_PickupClosestItem_DeRonBauwen.h"
+#include "Behaviors/BTT_PickupClosestItem_DeRonBauwen.h"
 
 #include "AIController.h"
 #include "InvHelper.h"
@@ -8,7 +8,7 @@
 
 EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	auto const BlackboardComp = OwnerComp.GetBlackboardComponent();
+	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	
 	auto const ItemFromMap = BlackboardComp->GetValueAsObject(ClosestItemPtrKey.SelectedKeyName);
 	if (!ItemFromMap) return EBTNodeResult::Failed;
@@ -29,6 +29,7 @@ EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTre
 	if (PickupSlot < 0) return EBTNodeResult::Failed;
 	
 	if (!Inventory->GrabItem(PickupSlot, ItemToCollect)) return EBTNodeResult::Failed;
+	BlackboardComp->ClearValue(ClosestItemPtrKey.SelectedKeyName);
 	
 	return EBTNodeResult::Succeeded;
 }
