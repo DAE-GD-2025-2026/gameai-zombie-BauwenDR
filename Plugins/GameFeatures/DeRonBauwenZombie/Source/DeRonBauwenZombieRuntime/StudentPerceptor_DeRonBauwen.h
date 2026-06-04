@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "BehaviorTree/BehaviorTreeTypes.h"
 #include "Components/ActorComponent.h"
+#include "Items/BaseItem.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Damage.h"

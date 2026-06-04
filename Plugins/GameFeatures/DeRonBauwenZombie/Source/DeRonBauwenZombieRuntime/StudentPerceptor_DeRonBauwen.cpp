@@ -2,7 +2,7 @@
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Items/BaseItem.h"
+#include "Village/House/House.h"
 
 UStudentPerceptor_DeRonBauwen::UStudentPerceptor_DeRonBauwen()
 {
@@ -13,12 +13,12 @@ void UStudentPerceptor_DeRonBauwen::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (auto const PerceptionComp = GetOwner()->GetComponentByClass<UAIPerceptionComponent>(); PerceptionComp != nullptr)
+	if (auto PerceptionComp = GetOwner()->GetComponentByClass<UAIPerceptionComponent>())
 	{
 		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated);
 	}
 	
-	if (auto const AIController = Cast<AAIController>(GetOwner()->GetInstigatorController()); AIController != nullptr)
+	if (auto AIController = Cast<AAIController>(GetOwner()->GetInstigatorController()))
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
 	}
@@ -26,6 +26,16 @@ void UStudentPerceptor_DeRonBauwen::BeginPlay()
 
 void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	GEngine->AddOnScreenDebugMessage(5, 1.f, FColor::Green, 
+	FString::Printf(TEXT("Saw Something!")));
+	
+	UE_LOG(LogTemp, Warning, TEXT("Sensed %s"), *Actor->GetName());
+	
+	if (AHouse* House{Cast<AHouse>(Actor)}; House != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("House is now %s"), *House->GetName());
+	}
+	
 	if (ABaseItem* Item = Cast<ABaseItem>(Actor); Item != nullptr)
 	{
 		ItemPerceptor(Item);
