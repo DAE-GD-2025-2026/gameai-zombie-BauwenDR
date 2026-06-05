@@ -1,7 +1,7 @@
 #include "Steering/CombinedSteeringBehaviors.h"
 #include <algorithm>
 
-FBlendedSteering::FBlendedSteering(const std::vector<FWeightedBehavior>& WeightedBehaviors)
+FBlendedSteering::FBlendedSteering(const std::vector<FWeightedBehavior*>& WeightedBehaviors)
 	: WeightedBehaviors(WeightedBehaviors)
 {
 };
@@ -11,15 +11,15 @@ FBlendedSteering::FBlendedSteering(const std::vector<FWeightedBehavior>& Weighte
 float* FBlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
 {
 	const auto It{
-		std::ranges::find_if(WeightedBehaviors, [SteeringBehavior](const FWeightedBehavior& Elem)
+		std::ranges::find_if(WeightedBehaviors, [SteeringBehavior](const FWeightedBehavior *Elem)
 		{
-			return Elem.Behavior == SteeringBehavior;
+			return Elem->Behavior == SteeringBehavior;
 		})
 	};
 
 	if (It != WeightedBehaviors.end())
 	{
-		return &It->Weight;
+		return &(*It)->Weight;
 	}
 
 	return nullptr;
@@ -31,9 +31,13 @@ FSteeringOutput FBlendedSteering::CalculateSteering(float DeltaT, AActor& Agent)
 
 	for (const auto& Behaviour : WeightedBehaviors)
 	{
-		FSteeringOutput Steering{Behaviour.Behavior->CalculateSteering(DeltaT, Agent)};
-		BlendedOutput.LinearVelocity += Steering.LinearVelocity.GetSafeNormal() * Behaviour.Weight;
-		BlendedOutput.AngularVelocity += Steering.AngularVelocity * Behaviour.Weight;
+		FSteeringOutput Steering{Behaviour->Behavior->CalculateSteering(DeltaT, Agent)};
+
+		if (Steering.IsValid)
+		{
+			BlendedOutput.LinearVelocity += Steering.LinearVelocity.GetSafeNormal() * Behaviour->Weight;
+			BlendedOutput.AngularVelocity += Steering.AngularVelocity * Behaviour->Weight;
+		}
 	}
 
 	return BlendedOutput;

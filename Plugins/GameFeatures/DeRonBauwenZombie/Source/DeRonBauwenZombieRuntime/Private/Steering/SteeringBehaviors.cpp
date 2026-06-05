@@ -23,6 +23,8 @@ FSteeringOutput FFlee::CalculateSteering(const float DeltaT, AActor& Agent)
 	return Steering;
 }
 
+// Pursuit
+//*******
 FSteeringOutput FPursuit::CalculateSteering(float DeltaT, AActor& Agent)
 {
 	const FTargetData OriginalTarget{Target};
@@ -38,9 +40,11 @@ FSteeringOutput FPursuit::CalculateSteering(float DeltaT, AActor& Agent)
 	return Steering;
 }
 
+// Evade
+//*******
 FSteeringOutput FEvade::CalculateSteering(float DeltaT, AActor& Agent)
 {
-	const bool IsValid = (Target.Position - Agent.GetActorLocation()).SquaredLength() <= EvadeRadius*EvadeRadius;
+	const bool IsValid = (Target.Position - Agent.GetActorLocation()).SquaredLength() <= EvadeRadius * EvadeRadius;
 	
 	FSteeringOutput Steering{FPursuit::CalculateSteering(DeltaT, Agent)};
 

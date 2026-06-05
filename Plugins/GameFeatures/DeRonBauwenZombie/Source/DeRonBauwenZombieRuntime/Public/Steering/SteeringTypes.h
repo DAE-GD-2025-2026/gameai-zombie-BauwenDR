@@ -3,19 +3,12 @@
 #include "CoreMinimal.h"
 
 //SteeringParams (alias TargetData)
-USTRUCT(BlueprintType)
 struct FSteeringParams final //Also used as Target for SteeringBehaviors
 {
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector Position;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float Orientation;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector LinearVelocity;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AngularVelocity;
 
 	explicit FSteeringParams(const FVector& Position = FVector::ZeroVector, float Orientation = 0.f, 
@@ -26,7 +19,6 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 		AngularVelocity(AngularVel)
 	{}
 
-#pragma region Functions
 	void Clear()
 	{
 		Position = FVector::ZeroVector;
@@ -35,9 +27,7 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 		Orientation = 0.f;
 		AngularVelocity = 0.f;
 	}
-#pragma endregion
 
-#pragma region Operator Overloads
 	FSteeringParams(const FSteeringParams& Other)
 	{
 		Position = Other.Position;
@@ -65,9 +55,8 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 	{
 		return Position != Other.Position || Orientation != Other.Orientation || LinearVelocity != Other.LinearVelocity || AngularVelocity != Other.AngularVelocity;
 	}
-#pragma endregion
-
 };
+
 using FTargetData = FSteeringParams; //Alias for SteeringBehavior usage ( Bit clearer in its context ;) )
 
 struct FSteeringOutput final
