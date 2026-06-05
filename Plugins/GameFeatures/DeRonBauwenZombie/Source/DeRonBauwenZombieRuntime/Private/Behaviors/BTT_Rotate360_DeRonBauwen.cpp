@@ -12,8 +12,6 @@ struct FBTRotate360Memory
 UBTT_Rotate360_DeRonBauwen::UBTT_Rotate360_DeRonBauwen()
 {
 	NodeName = TEXT("Rotate 360");
-	Duration = 1.0f;
-	bUseRelativeStart = true;
 
 	bNotifyTick = true;
 }
@@ -22,7 +20,7 @@ EBTNodeResult::Type UBTT_Rotate360_DeRonBauwen::ExecuteTask(UBehaviorTreeCompone
 {
 	FBTRotate360Memory* Memory = reinterpret_cast<FBTRotate360Memory*>(NodeMemory);
 	Memory->Elapsed = 0.f;
-	Memory->bInitialized = false;
+	Memory->bInitialized = true;
 
 	AAIController* AiController = OwnerComp.GetAIOwner();
 	if (!AiController) return EBTNodeResult::Failed;
@@ -30,17 +28,16 @@ EBTNodeResult::Type UBTT_Rotate360_DeRonBauwen::ExecuteTask(UBehaviorTreeCompone
 	APawn* Pawn = AiController->GetPawn();
 	if (!Pawn) return EBTNodeResult::Failed;
 
-	FRotator StartRot = Pawn->GetActorRotation();
-	Memory->StartYaw = StartRot.Yaw;
+	Memory->StartYaw = Pawn->GetActorRotation().Yaw;
 
 	if (Duration <= 0.f)
 	{
-		FRotator NewRot = StartRot;
-		NewRot.Yaw = Memory->StartYaw + 360.f;
+		FRotator NewRot = Pawn->GetActorRotation();
+		NewRot.Yaw = FRotator::NormalizeAxis(Memory->StartYaw + 360.f);
 		Pawn->SetActorRotation(NewRot);
 		return EBTNodeResult::Succeeded;
 	}
-	
+
 	return EBTNodeResult::InProgress;
 }
 
@@ -62,18 +59,12 @@ void UBTT_Rotate360_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 		return;
 	}
 
-	if (!Memory->bInitialized)
-	{
-		Memory->StartYaw = Pawn->GetActorRotation().Yaw;
-		Memory->Elapsed = 0.f;
-		Memory->bInitialized = true;
-	}
-
 	Memory->Elapsed += DeltaSeconds;
 	float Alpha = FMath::Clamp(Memory->Elapsed / Duration, 0.f, 1.f);
-	
+
 	float YawOffset = 360.f * Alpha;
 	float TargetYaw = Memory->StartYaw + YawOffset;
+	TargetYaw = FRotator::NormalizeAxis(TargetYaw);
 
 	FRotator NewRot = Pawn->GetActorRotation();
 	NewRot.Yaw = TargetYaw;
@@ -81,8 +72,7 @@ void UBTT_Rotate360_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 
 	if (Alpha >= 1.f)
 	{
-		// ensure exact final yaw
-		NewRot.Yaw = Memory->StartYaw + 360.f;
+		NewRot.Yaw = FRotator::NormalizeAxis(Memory->StartYaw + 360.f);
 		Pawn->SetActorRotation(NewRot);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}

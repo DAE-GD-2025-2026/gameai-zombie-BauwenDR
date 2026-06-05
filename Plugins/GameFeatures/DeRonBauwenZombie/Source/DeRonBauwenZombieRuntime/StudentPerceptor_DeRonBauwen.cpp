@@ -21,6 +21,7 @@ void UStudentPerceptor_DeRonBauwen::BeginPlay()
 	if (auto AIController = Cast<AAIController>(GetOwner()->GetInstigatorController()))
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
+		SurvivorPawn = Cast<ASurvivorPawn>(AIController->GetPawn());
 	}
 }
 
@@ -33,51 +34,61 @@ void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimul
 	
 	if (AHouse* House{Cast<AHouse>(Actor)}; House != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("House is now %s"), *House->GetName());
+		if (!RememberedHouses.Contains(House) && !RememberedVisitedHouses.Contains(House))
+		{
+			RememberedHouses.Add(House);
+		}
 	}
 	
 	if (ABaseItem* Item = Cast<ABaseItem>(Actor); Item != nullptr)
 	{
-		ItemPerceptor(Item);
+		if (!RememberedItems.Contains(Item))
+		{
+			RememberedItems.Add(Item);
+		}
 	}
 }
 
-void UStudentPerceptor_DeRonBauwen::ItemPerceptor(ABaseItem* NewItem)
+ABaseItem* UStudentPerceptor_DeRonBauwen::GetClosestRememberedItemOfType(EItemType type)
 {
-	FBlackboardKeySelector *ItemTypeKey{nullptr};
-	switch (NewItem->GetItemType()) {
-	case EItemType::Food:
-		ItemTypeKey = &ClosestFoodPtrKey;
-		break;
-	case EItemType::Medkit:
-		ItemTypeKey = &ClosestMedkitPtrKey;
-		break;
-	case EItemType::Shotgun:
-		ItemTypeKey = &ClosestWeaponPtrKey;
-		break;
-	case EItemType::Pistol:
-		ItemTypeKey = &ClosestWeaponPtrKey;
-		break;
-	case EItemType::Garbage:
-		break;
-	}
-	
-	if (ItemTypeKey == nullptr)
+	ABaseItem* Closest{};
+	double ClosestDistance{FLT_MAX};
+
+	for (auto const &Item : RememberedItems)
 	{
-		return;
+		if (Item->GetItemType() != type) continue;
+		
+		double const Distance{FVector::DistSquared(Item->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+
+		if (Distance >= ClosestDistance) continue;
+		
+		Closest = Item;
+		ClosestDistance = Distance;
 	}
+
+	return Closest;
+}
+
+AHouse* UStudentPerceptor_DeRonBauwen::GetClosestRememberedHouse(bool MarkVisited)
+{
+	AHouse* Closest{};
+	double ClosestDistance{FLT_MAX};
 	
-	APawn* Self{Cast<APawn>(BlackboardComp->GetValueAsObject(SelfActorKey.SelectedKeyName))};
-	if (Self == nullptr)
+	for (auto const &House : RememberedHouses)
 	{
-		return;
+		double const Distance{FVector::DistSquared(House->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+
+		if (Distance >= ClosestDistance) continue;
+		
+		Closest = House;
+		ClosestDistance = Distance;
 	}
-	
-	ABaseItem *CurrentItem{Cast<ABaseItem>(BlackboardComp->GetValueAsObject(ItemTypeKey->SelectedKeyName))};
-	
-	if (CurrentItem == nullptr 
-		|| FVector::DistSquared(Self->GetActorLocation(), CurrentItem->GetActorLocation()) < FVector::DistSquared(Self->GetActorLocation(), NewItem->GetActorLocation()))
+
+	if (MarkVisited)
 	{
-		BlackboardComp->SetValueAsObject(SelfActorKey.SelectedKeyName, NewItem);
+		RememberedVisitedHouses.Add(Closest);
+		RememberedHouses.Remove(Closest);
 	}
+	
+	return Closest;
 }

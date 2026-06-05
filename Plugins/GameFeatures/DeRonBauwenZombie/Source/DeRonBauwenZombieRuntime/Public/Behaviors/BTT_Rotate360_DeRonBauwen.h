@@ -18,8 +18,8 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere, Category = "Spin")
-	float Duration;
+	float Duration{1.0f};
 
 	UPROPERTY(EditAnywhere, Category = "Spin")
-	bool bUseRelativeStart;	
+	bool bUseRelativeStart{true};	
 };

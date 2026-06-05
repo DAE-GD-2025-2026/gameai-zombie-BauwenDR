@@ -8,6 +8,7 @@
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AISense_Damage.h"
+#include "Village/House/House.h"
 #include "StudentPerceptor_DeRonBauwen.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -23,22 +24,18 @@ public:
 
 	UFUNCTION()
 	virtual void OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
-	
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blackboard")
-	FBlackboardKeySelector SelfActorKey;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blackboard")
-	FBlackboardKeySelector ClosestMedkitPtrKey;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blackboard")
-	FBlackboardKeySelector ClosestWeaponPtrKey;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Blackboard")
-	FBlackboardKeySelector ClosestFoodPtrKey;
+
+	ABaseItem* GetClosestRememberedItemOfType(EItemType type);
+	AHouse* GetClosestRememberedHouse(bool MarkVisited = true);
 	
 private:
 	TObjectPtr<UBlackboardComponent> BlackboardComp;
+	TObjectPtr<ASurvivorPawn> SurvivorPawn;
+
+	TArray<ABaseItem*> RememberedItems{};
+	TArray<AHouse*> RememberedHouses{};
+	
+	TArray<AHouse*> RememberedVisitedHouses{};
 	
 	void ItemPerceptor(ABaseItem *NewItem);
 };

@@ -15,11 +15,11 @@ public:
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
-	FBlackboardKeySelector ClosestItemPtrKey;
+	EItemType ItemType;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	FBlackboardKeySelector ResultItemKey;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Search")
-	float MaxSearchDistance = 5000.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	FBlackboardKeySelector ResultItemLocationKey;
 };

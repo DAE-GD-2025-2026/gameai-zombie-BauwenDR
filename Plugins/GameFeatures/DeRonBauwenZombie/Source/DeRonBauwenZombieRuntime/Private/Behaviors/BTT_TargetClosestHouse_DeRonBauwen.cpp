@@ -1,13 +1,14 @@
-#include "Behaviors/BTT_SetItemTypeAsTargetLocation_DeRonBauwen.h"
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Behaviors/BTT_TargetClosestHouse_DeRonBauwen.h"
 
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "DeRonBauwenZombieRuntime/StudentPerceptor_DeRonBauwen.h"
+#include "Village/House/House.h"
 
-#include "Items/BaseItem.h"
-
-EBTNodeResult::Type UBTT_SetItemTypeAsTargetLocation_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
-	uint8* NodeMemory)
+EBTNodeResult::Type UBTT_TargetClosestHouse_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
 
@@ -15,13 +16,12 @@ EBTNodeResult::Type UBTT_SetItemTypeAsTargetLocation_DeRonBauwen::ExecuteTask(UB
 	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
 	UStudentPerceptor_DeRonBauwen* Perceptor{Survivor->GetComponentByClass<UStudentPerceptor_DeRonBauwen>()};
 	
-	ABaseItem* ClosestItem{Perceptor->GetClosestRememberedItemOfType(ItemType)};
-	if (!ClosestItem)
+	AHouse* ClosestHouse{Perceptor->GetClosestRememberedHouse()};
+	if (!ClosestHouse)
 	{
 		return EBTNodeResult::Failed;
 	}
 	
-	BlackboardComp->SetValueAsObject(ResultItemKey.SelectedKeyName, ClosestItem);
-	BlackboardComp->SetValueAsVector(ResultItemLocationKey.SelectedKeyName, ClosestItem->GetActorLocation());
+	BlackboardComp->SetValueAsVector(ResultPositionKey.SelectedKeyName, ClosestHouse->GetActorLocation());
 	return EBTNodeResult::Succeeded;
 }
