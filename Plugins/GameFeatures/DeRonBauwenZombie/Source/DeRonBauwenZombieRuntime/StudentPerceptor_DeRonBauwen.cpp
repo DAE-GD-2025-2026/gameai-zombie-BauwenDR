@@ -27,11 +27,6 @@ void UStudentPerceptor_DeRonBauwen::BeginPlay()
 
 void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	GEngine->AddOnScreenDebugMessage(5, 1.f, FColor::Green, 
-	FString::Printf(TEXT("Saw Something!")));
-	
-	UE_LOG(LogTemp, Warning, TEXT("Sensed %s"), *Actor->GetName());
-	
 	if (AHouse* House{Cast<AHouse>(Actor)}; House != nullptr)
 	{
 		if (!RememberedHouses.Contains(House) && !RememberedVisitedHouses.Contains(House))

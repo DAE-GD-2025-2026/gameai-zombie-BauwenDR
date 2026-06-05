@@ -61,19 +61,16 @@ using FTargetData = FSteeringParams; //Alias for SteeringBehavior usage ( Bit cl
 
 struct FSteeringOutput final
 {
-	FVector LinearVelocity{};
-	float AngularVelocity{0.f};
+	FVector2D LinearVelocity{};
 	bool IsValid{true};
 
-	FSteeringOutput(const FVector& LinearVelocity = {0.0f, 0.0f, 0.0f}, float AngularVelocity = 0.f)
+	FSteeringOutput(const FVector& LinearVelocity = {0.0f, 0.0f, 0.0f})
 		: LinearVelocity(LinearVelocity)
-		  , AngularVelocity(AngularVelocity)
 	{}
 
 	FSteeringOutput& operator=(const FSteeringOutput& Other)
 	{
 		LinearVelocity = Other.LinearVelocity;
-		AngularVelocity = Other.AngularVelocity;
 		IsValid = Other.IsValid;
 
 		return *this;
@@ -82,7 +79,6 @@ struct FSteeringOutput final
 	FSteeringOutput& operator+(const FSteeringOutput& Other)
 	{
 		LinearVelocity += Other.LinearVelocity;
-		AngularVelocity += Other.AngularVelocity;
 
 		return *this;
 	}
@@ -90,7 +86,6 @@ struct FSteeringOutput final
 	FSteeringOutput& operator*=(const FSteeringOutput& Other)
 	{
 		LinearVelocity = LinearVelocity * Other.LinearVelocity;
-		AngularVelocity = AngularVelocity * Other.AngularVelocity;
 
 		return *this;
 	}
@@ -98,7 +93,6 @@ struct FSteeringOutput final
 	FSteeringOutput& operator*=(float Factor)
 	{
 		LinearVelocity = Factor * LinearVelocity;
-		AngularVelocity = Factor * AngularVelocity;
 
 		return *this;
 	}
@@ -106,7 +100,6 @@ struct FSteeringOutput final
 	FSteeringOutput& operator/=(float Factor)
 	{
 		LinearVelocity = LinearVelocity / Factor;
-		AngularVelocity = AngularVelocity / Factor;
 
 		return *this;
 	}

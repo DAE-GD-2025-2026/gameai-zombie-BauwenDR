@@ -40,6 +40,7 @@ public class DeRonBauwenZombieRuntime : ModuleRules
 				"Slate",
 				"SlateCore",
 				"AIModule",
+				"NavigationSystem",
 				nameof(GameAI_Zombie)
 				// ... add private dependencies that you statically link with here ...	
 			}

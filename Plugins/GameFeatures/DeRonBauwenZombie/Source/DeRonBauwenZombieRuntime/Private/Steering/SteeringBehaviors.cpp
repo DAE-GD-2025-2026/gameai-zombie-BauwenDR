@@ -8,7 +8,8 @@ FSteeringOutput FSeek::CalculateSteering(const float DeltaT, AActor& Agent)
 {
 	FSteeringOutput Steering{};
 
-	Steering.LinearVelocity = Target.Position - Agent.GetActorLocation();
+	const FVector LinearVel{Target.Position - Agent.GetActorLocation()};
+	Steering.LinearVelocity = FVector2D{LinearVel.X, LinearVel.Y};
 
 	return Steering;
 }

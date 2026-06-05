@@ -29,8 +29,8 @@ public:
 	AHouse* GetClosestRememberedHouse(bool MarkVisited = true);
 	
 private:
-	TObjectPtr<UBlackboardComponent> BlackboardComp;
-	TObjectPtr<ASurvivorPawn> SurvivorPawn;
+	UBlackboardComponent* BlackboardComp;
+	ASurvivorPawn* SurvivorPawn;
 
 	TArray<ABaseItem*> RememberedItems{};
 	TArray<AHouse*> RememberedHouses{};

@@ -13,7 +13,7 @@ float* FBlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
 	const auto It{
 		std::ranges::find_if(WeightedBehaviors, [SteeringBehavior](const FWeightedBehavior *Elem)
 		{
-			return Elem->Behavior == SteeringBehavior;
+			return Elem->Behavior.get() == SteeringBehavior;
 		})
 	};
 
@@ -36,7 +36,6 @@ FSteeringOutput FBlendedSteering::CalculateSteering(float DeltaT, AActor& Agent)
 		if (Steering.IsValid)
 		{
 			BlendedOutput.LinearVelocity += Steering.LinearVelocity.GetSafeNormal() * Behaviour->Weight;
-			BlendedOutput.AngularVelocity += Steering.AngularVelocity * Behaviour->Weight;
 		}
 	}
 

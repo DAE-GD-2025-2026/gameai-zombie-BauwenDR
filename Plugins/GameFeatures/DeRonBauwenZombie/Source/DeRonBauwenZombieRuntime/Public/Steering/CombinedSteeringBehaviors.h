@@ -10,13 +10,13 @@ class FBlendedSteering final: public ISteeringBehavior
 public:
 	struct FWeightedBehavior
 	{
-		ISteeringBehavior* Behavior{};
+		std::unique_ptr<ISteeringBehavior> Behavior{};
 		float Weight{0.0f};
 
-		FWeightedBehavior(ISteeringBehavior* Behavior, float Weight) :
-			Behavior(Behavior),
+		FWeightedBehavior(std::unique_ptr<ISteeringBehavior> Behavior, float Weight) :
+			Behavior(std::move(Behavior)),
 			Weight(Weight)
-		{};
+		{}
 	};
 
 	explicit FBlendedSteering(const std::vector<FWeightedBehavior*>& WeightedBehaviors);
@@ -32,7 +32,7 @@ public:
 	virtual FSteeringOutput CalculateSteering(float DeltaT, AActor& Agent) override;
 	
 private:
-	std::vector<FWeightedBehavior*> WeightedBehaviors = {};
+	std::vector<FWeightedBehavior*> WeightedBehaviors{};
 };
 
 //*****************

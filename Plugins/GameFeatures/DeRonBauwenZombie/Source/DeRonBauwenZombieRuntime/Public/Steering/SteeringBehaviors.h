@@ -8,7 +8,6 @@ public:
 	ISteeringBehavior() = default;
 	virtual ~ISteeringBehavior() = default;
 
-	// Override to implement your own behavior
 	virtual FSteeringOutput CalculateSteering(float DeltaT, AActor& Agent) = 0;
 
 	void SetTarget(const FTargetData& NewTarget) { Target = NewTarget; }
