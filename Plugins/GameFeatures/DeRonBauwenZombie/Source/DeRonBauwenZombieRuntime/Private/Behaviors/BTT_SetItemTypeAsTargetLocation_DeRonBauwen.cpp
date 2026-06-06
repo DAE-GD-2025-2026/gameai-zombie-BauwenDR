@@ -16,8 +16,10 @@ EBTNodeResult::Type UBTT_SetItemTypeAsTargetLocation_DeRonBauwen::ExecuteTask(UB
 	UStudentPerceptor_DeRonBauwen* Perceptor{Survivor->GetComponentByClass<UStudentPerceptor_DeRonBauwen>()};
 	
 	ABaseItem* ClosestItem{Perceptor->GetClosestRememberedItemOfType(ItemType)};
-	if (!ClosestItem)
+	if (!ClosestItem || !IsValid(ClosestItem))
 	{
+		BlackboardComp->ClearValue(ResultItemKey.SelectedKeyName);
+		BlackboardComp->ClearValue(ResultItemLocationKey.SelectedKeyName);
 		return EBTNodeResult::Failed;
 	}
 	

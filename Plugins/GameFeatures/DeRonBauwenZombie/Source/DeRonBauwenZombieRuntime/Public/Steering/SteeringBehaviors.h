@@ -52,7 +52,7 @@ public:
 
 private:
 	float OffsetDistance{6.0f};
-	float Radius{4.0f};
-	float MaxAngleChange{FMath::DegreesToRadians(45.0f)};
+	float Radius{3.0f};
+	float MaxAngleChange{FMath::DegreesToRadians(22.0f)};
 	float WanderAngle{0.0f};
 };

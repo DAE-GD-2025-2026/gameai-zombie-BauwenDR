@@ -31,7 +31,8 @@ public:
 	ABaseItem* GetClosestRememberedItemOfType(EItemType type);
 	AHouse* GetClosestRememberedHouse(bool MarkVisited = true);
 	ABaseZombie* GetClosestZombie();
-	
+	TArray<ABaseZombie*> const &GetZombies();
+
 private:
 	UBlackboardComponent* BlackboardComp;
 	ASurvivorPawn* SurvivorPawn;

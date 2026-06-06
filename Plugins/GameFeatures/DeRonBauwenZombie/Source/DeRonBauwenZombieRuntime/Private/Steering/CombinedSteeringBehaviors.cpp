@@ -39,6 +39,7 @@ FSteeringOutput FBlendedSteering::CalculateSteering(float DeltaT, AActor& Agent)
 		}
 	}
 
+	BlendedOutput.LinearVelocity.Normalize();
 	return BlendedOutput;
 }
 

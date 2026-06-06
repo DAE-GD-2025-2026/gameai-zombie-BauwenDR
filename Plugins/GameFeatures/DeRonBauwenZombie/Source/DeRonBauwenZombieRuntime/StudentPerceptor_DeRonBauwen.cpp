@@ -138,3 +138,8 @@ ABaseZombie* UStudentPerceptor_DeRonBauwen::GetClosestZombie()
 
 	return Closest;
 }
+
+TArray<ABaseZombie*> const &UStudentPerceptor_DeRonBauwen::GetZombies()
+{
+	return RememberedZombies;
+}

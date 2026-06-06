@@ -3,35 +3,17 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "GameFramework/Character.h"
+#include "DeRonBauwenZombieRuntime/StudentPerceptor_DeRonBauwen.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "Survivor/SurvivorPawn.h"
-
-float GetPawnRadius(APawn* Pawn)
-{
-	if (!Pawn) return 34.f;
-	// If using Character with CapsuleComponent:
-	if (ACharacter* Char = Cast<ACharacter>(Pawn))
-	{
-		if (UCapsuleComponent* Cap = Char->GetCapsuleComponent())
-		{
-			return Cap->GetScaledCapsuleRadius();
-		}
-	}
-
-	const FNavAgentProperties& NavProps = Pawn->GetNavAgentPropertiesRef();
-	if (NavProps.AgentRadius > 0.f) return NavProps.AgentRadius;
-
-	return 34.f;
-}
 
 UBTT_SteerTowardAvoidingZombies_DeRonBauwen::UBTT_SteerTowardAvoidingZombies_DeRonBauwen()
 {
 	bNotifyTick = true;
 
 	SeekBehavior = std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FSeek>(), 0.2f);
-	Steering = std::make_unique<FBlendedSteering>(FBlendedSteering{{SeekBehavior.get()}});
+	WanderBehavior = std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FWander>(), 0.1f);
+	Steering = std::make_unique<FBlendedSteering>(FBlendedSteering{{SeekBehavior.get(), WanderBehavior.get()}});
 }
 
 EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
@@ -39,22 +21,14 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 {
 	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
 
-	AAIController* AiController{OwnerComp.GetAIOwner()};
-	if (!AiController)
-	{
-		return EBTNodeResult::Failed;
-	}
+	AAIController const*AiController{OwnerComp.GetAIOwner()};
+	if (!AiController) return EBTNodeResult::Failed;
 
 	ASurvivorPawn* Pawn{Cast<ASurvivorPawn>(AiController->GetPawn())};
-	if (!Pawn)
-	{
-		return EBTNodeResult::Failed;
-	}
-
-	if (!Steering)
-	{
-		return EBTNodeResult::Failed;
-	}
+	if (!Pawn) return EBTNodeResult::Failed;
+	Pawn->StartRunning();
+	
+	if (!Steering) return EBTNodeResult::Failed;
 
 	const auto Destination{BlackboardComp->GetValueAsVector(DestinationKey.SelectedKeyName)};
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
@@ -77,24 +51,47 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 
 void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
-	if (BlackboardComp->GetValueAsBool(IsZombieTooCloseKey.SelectedKeyName))
-	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
-		return;
-	}
-	
 	const AAIController* AIController{OwnerComp.GetAIOwner()};
 	if (!AIController)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
-	APawn* Pawn = AIController->GetPawn();
+	
+	ASurvivorPawn* Pawn{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Pawn)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
 		return;
+	}
+
+	UStudentPerceptor_DeRonBauwen* Perceptor{Pawn->GetComponentByClass<UStudentPerceptor_DeRonBauwen>()};
+	if (!Perceptor)
+	{
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+
+	// Evade zombies
+	for (int It{0}; It < Perceptor->GetZombies().Num(); ++It)
+	{
+		if (EvadeBehaviors.Num() <= It)
+		{
+			EvadeBehaviors.Add(std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FEvade>(EvadeDistance), EvadePriority));
+			Steering->AddBehaviour(EvadeBehaviors.Last().get());
+		}
+
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData
+		{
+			Perceptor->GetZombies()[It]->GetActorLocation(),
+			0.0f,
+			Perceptor->GetZombies()[It]->GetActorForwardVector(),
+		});
+	}
+
+	for (int It{Perceptor->GetZombies().Num()}; It < EvadeBehaviors.Num(); ++It)
+	{
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
 	}
 
 	// Cancel task when we get stuck
@@ -103,7 +100,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 
 	if (!Steering)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 	
@@ -112,7 +109,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 	LastLocation = Pawn->GetActorLocation();
 
 	if (StuckTime > MaxStuckTime) {
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
@@ -121,7 +118,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 		const TArray<FNavPathPoint>& Points = CurrentPath->GetPathPoints();
 		if (CurrentPathIndex >= Points.Num())
 		{
-			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+			TaskFinished(OwnerComp, EBTNodeResult::Succeeded);
 			return;
 		}
 
@@ -147,6 +144,19 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 	}
 	else
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		TaskFinished(OwnerComp, EBTNodeResult::Failed);
 	}
+}
+
+void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TaskFinished(UBehaviorTreeComponent& OwnerComp,
+	EBTNodeResult::Type TaskResult) const
+{
+	const AAIController* AIController{OwnerComp.GetAIOwner()};
+	if (!AIController) return;
+	
+	ASurvivorPawn* Pawn{Cast<ASurvivorPawn>(AIController->GetPawn())};
+	if (!Pawn) return;
+
+	Pawn->StopRunning();
+	FinishLatentTask(OwnerComp, TaskResult);
 }

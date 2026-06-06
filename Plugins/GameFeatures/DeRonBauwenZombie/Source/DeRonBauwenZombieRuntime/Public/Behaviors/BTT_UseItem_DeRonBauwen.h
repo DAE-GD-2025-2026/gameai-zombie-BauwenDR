@@ -9,11 +9,11 @@ UCLASS()
 class DERONBAUWENZOMBIERUNTIME_API UBTT_UseItem_DeRonBauwen : public UBTTaskNode
 {
 	GENERATED_BODY()
+	
+public:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	FBlackboardKeySelector ItemToUseKey;
-	
-public:
-	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

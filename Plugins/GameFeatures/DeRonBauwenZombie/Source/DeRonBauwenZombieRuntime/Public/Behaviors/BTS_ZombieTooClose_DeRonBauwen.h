@@ -8,6 +8,9 @@ UCLASS()
 class DERONBAUWENZOMBIERUNTIME_API UBTS_ZombieTooClose_DeRonBauwen : public UBTService
 {
 	GENERATED_BODY()
+	
+public:
+	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 protected:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Blackboard")
@@ -21,7 +24,4 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Detection")
 	double PistolDistance{800.0};
-	
-public:
-	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 };

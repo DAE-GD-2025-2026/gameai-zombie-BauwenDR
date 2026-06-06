@@ -19,13 +19,11 @@ public:
 
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 	virtual void TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+	void TaskFinished(UBehaviorTreeComponent& OwnerComp, EBTNodeResult::Type TaskResult) const;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	FBlackboardKeySelector DestinationKey;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Blackboard")
-	FBlackboardKeySelector IsZombieTooCloseKey;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	float ArriveDistance{50.0f};
@@ -34,17 +32,21 @@ protected:
 	float EvadeDistance{250.0f};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
-	float MaxStuckTime{0.3f};
+	float EvadePriority{0.7f};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	float MaxStuckTime{0.5f};
 
 private:
 	std::unique_ptr<FBlendedSteering> Steering{};
 	std::unique_ptr<FBlendedSteering::FWeightedBehavior> SeekBehavior{};
+	std::unique_ptr<FBlendedSteering::FWeightedBehavior> WanderBehavior{};
 
-	TArray<std::unique_ptr<FBlendedSteering::FWeightedBehavior>> FleeBehaviors{};
+	TArray<std::unique_ptr<FBlendedSteering::FWeightedBehavior>> EvadeBehaviors{};
 
 	FVector LastLocation{};
 	FNavPathSharedPtr CurrentPath{};
-	int32 CurrentPathIndex = 0;
-	float WaypointAcceptanceRadius = 100.f;
+	int32 CurrentPathIndex{};
+	float WaypointAcceptanceRadius{100.0f};
 	float StuckTime{};
 };
