@@ -1,5 +1,3 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "DeRonBauwenZombieRuntimeModule.h"
 
 #define LOCTEXT_NAMESPACE "FDeRonBauwenZombieRuntimeModule"

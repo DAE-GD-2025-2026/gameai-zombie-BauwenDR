@@ -9,6 +9,7 @@
 #include "Perception/AISenseConfig_Damage.h"
 #include "Perception/AISense_Damage.h"
 #include "Village/House/House.h"
+#include "Zombies/BaseZombie.h"
 #include "StudentPerceptor_DeRonBauwen.generated.h"
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -19,6 +20,7 @@ class DERONBAUWENZOMBIERUNTIME_API UStudentPerceptor_DeRonBauwen : public UActor
 public:
 	// Sets default values for this component's properties
 	UStudentPerceptor_DeRonBauwen();
+	virtual ~UStudentPerceptor_DeRonBauwen() override;
 	
 	virtual void BeginPlay() override;
 
@@ -34,6 +36,7 @@ private:
 
 	TArray<ABaseItem*> RememberedItems{};
 	TArray<AHouse*> RememberedHouses{};
+	TArray<ABaseZombie*> RememberedZombies{};
 	
 	TArray<AHouse*> RememberedVisitedHouses{};
 	

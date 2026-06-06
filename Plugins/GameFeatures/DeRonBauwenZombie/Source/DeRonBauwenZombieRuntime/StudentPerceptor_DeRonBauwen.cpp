@@ -1,12 +1,16 @@
 ﻿#include "StudentPerceptor_DeRonBauwen.h"
 
 #include "AIController.h"
-#include "BehaviorTree/BlackboardComponent.h"
 #include "Village/House/House.h"
 
 UStudentPerceptor_DeRonBauwen::UStudentPerceptor_DeRonBauwen()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+}
+
+UStudentPerceptor_DeRonBauwen::~UStudentPerceptor_DeRonBauwen()
+{
+	RememberedZombies.SetNum(0);
 }
 
 void UStudentPerceptor_DeRonBauwen::BeginPlay()
@@ -40,6 +44,14 @@ void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimul
 		if (!RememberedItems.Contains(Item))
 		{
 			RememberedItems.Add(Item);
+		}
+	}
+
+	if (ABaseZombie* Zombie{Cast<ABaseZombie>(Actor)}; Zombie != nullptr)
+	{
+		if (!RememberedZombies.Contains(Zombie))
+		{
+			RememberedZombies.Add(Zombie);
 		}
 	}
 }

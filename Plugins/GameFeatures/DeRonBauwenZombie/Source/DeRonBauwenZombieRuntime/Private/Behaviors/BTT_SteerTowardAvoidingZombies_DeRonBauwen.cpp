@@ -3,7 +3,28 @@
 #include "AIController.h"
 #include "NavigationSystem.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "Survivor/SurvivorPawn.h"
+
+float GetPawnRadius(APawn* Pawn)
+{
+	if (!Pawn) return 34.f;
+	// If using Character with CapsuleComponent:
+	if (ACharacter* Char = Cast<ACharacter>(Pawn))
+	{
+		if (UCapsuleComponent* Cap = Char->GetCapsuleComponent())
+		{
+			return Cap->GetScaledCapsuleRadius();
+		}
+	}
+
+	const FNavAgentProperties& NavProps = Pawn->GetNavAgentPropertiesRef();
+	if (NavProps.AgentRadius > 0.f) return NavProps.AgentRadius;
+
+	return 34.f;
+}
 
 UBTT_SteerTowardAvoidingZombies_DeRonBauwen::UBTT_SteerTowardAvoidingZombies_DeRonBauwen()
 {
@@ -24,7 +45,7 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 		return EBTNodeResult::Failed;
 	}
 
-	APawn* Pawn{AiController->GetPawn()};
+	ASurvivorPawn* Pawn{Cast<ASurvivorPawn>(AiController->GetPawn())};
 	if (!Pawn)
 	{
 		return EBTNodeResult::Failed;
@@ -39,12 +60,12 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 	if (NavSys && Pawn)
 	{
-		CurrentPath = NavSys->FindPathToLocationSynchronously(GetWorld(),
-						 AiController->GetNavAgentLocation(), Destination, Pawn);
-		CurrentPathIndex = 0;
-		if (CurrentPath->IsValid() && CurrentPath->GetPath()->GetPathPoints().Num() > 0)
+		auto Result{NavSys->FindPathToLocationSynchronously(GetWorld(), AiController->GetNavAgentLocation(), Destination, Pawn)};
+		if (Result->IsValid() && Result->GetPath()->GetPathPoints().Num() > 0)
 		{
-			FVector FirstPoint = CurrentPath->GetPath()->GetPathPoints()[0].Location;
+			CurrentPath = Result->GetPath();
+			CurrentPathIndex = 0;
+			FVector FirstPoint = CurrentPath->GetPathPoints()[0].Location;
 			SeekBehavior->Behavior->SetTarget(FTargetData{FirstPoint});
 			return EBTNodeResult::InProgress;
 		}
@@ -79,7 +100,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 
 	if (CurrentPath->IsValid())
 	{
-		const TArray<FNavPathPoint>& Points = CurrentPath->GetPath()->GetPathPoints();
+		const TArray<FNavPathPoint>& Points = CurrentPath->GetPathPoints();
 		if (CurrentPathIndex >= Points.Num())
 		{
 			FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
@@ -98,8 +119,6 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 		if (FVector::DistSquared(Pawn->GetActorLocation(), Waypoint) <= FMath::Square(WaypointAcceptanceRadius))
 		{
 			CurrentPathIndex++;
-			UE_LOG(LogTemp, Warning, TEXT("New path id: %d"), CurrentPathIndex);
-			UE_LOG(LogTemp, Warning, TEXT("Parth length: %d"), Points.Num());
 			
 			if (CurrentPathIndex < Points.Num())
 			{

@@ -9,9 +9,9 @@ enum class EItemType : uint8;
 namespace
 {
 	const std::unordered_map<EItemType, int> INV_SLOTS {
-			{EItemType::Medkit, 1},
-			{EItemType::Shotgun, 2},
-			{EItemType::Pistol, 2},
+			{EItemType::Medkit, 0},
+			{EItemType::Shotgun, 1},
+			{EItemType::Pistol, 1},
 	};
 }
 
@@ -22,7 +22,7 @@ int InvHelper::GetIndexForType(UInventoryComponent const* Inventory, EItemType T
 		return INV_SLOTS.at(Type);
 	}
 	
-	for (int Index{3}; Index < Inventory->GetInventory().Num(); ++Index)
+	for (int Index{2}; Index < Inventory->GetInventory().Num(); ++Index)
 	{
 		if (Inventory->GetInventory()[Index] == nullptr)
 			return Index;

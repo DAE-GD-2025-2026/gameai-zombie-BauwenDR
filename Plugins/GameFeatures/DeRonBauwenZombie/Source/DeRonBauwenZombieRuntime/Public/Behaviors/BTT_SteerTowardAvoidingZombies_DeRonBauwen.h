@@ -31,7 +31,7 @@ private:
 	std::unique_ptr<FBlendedSteering> Steering{};
 	std::unique_ptr<FBlendedSteering::FWeightedBehavior> SeekBehavior{};
 
-	UNavigationPath* CurrentPath{};
+	FNavPathSharedPtr CurrentPath{};
 	int32 CurrentPathIndex = 0;
 	float WaypointAcceptanceRadius = 100.f;
 };

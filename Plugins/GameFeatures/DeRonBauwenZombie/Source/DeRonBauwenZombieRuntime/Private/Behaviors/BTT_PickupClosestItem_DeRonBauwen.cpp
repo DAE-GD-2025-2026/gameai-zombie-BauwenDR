@@ -30,6 +30,6 @@ EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTre
 	
 	if (!Inventory->GrabItem(PickupSlot, ItemToCollect)) return EBTNodeResult::Failed;
 	BlackboardComp->ClearValue(ClosestItemPtrKey.SelectedKeyName);
-	
+
 	return EBTNodeResult::Succeeded;
 }
