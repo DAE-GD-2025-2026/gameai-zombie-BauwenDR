@@ -49,6 +49,7 @@ class FWander final : public FSeek
 {
 public:
 	virtual FSteeringOutput CalculateSteering(float DeltaT, AActor& Agent) override;
+	void SetAngle(float NewAngle) {WanderAngle = NewAngle;}
 
 private:
 	float OffsetDistance{6.0f};

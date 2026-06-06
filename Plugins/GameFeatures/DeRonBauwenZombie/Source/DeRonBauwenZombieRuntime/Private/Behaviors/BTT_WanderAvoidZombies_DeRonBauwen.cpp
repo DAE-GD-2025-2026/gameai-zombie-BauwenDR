@@ -15,6 +15,15 @@ UBTT_WanderAvoidZombies_DeRonBauwen::UBTT_WanderAvoidZombies_DeRonBauwen()
 
 EBTNodeResult::Type UBTT_WanderAvoidZombies_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	AAIController const *AIController{OwnerComp.GetAIOwner()};
+	if (!AIController) return EBTNodeResult::Failed;
+	
+	ASurvivorPawn const *Pawn{Cast<ASurvivorPawn>(AIController->GetPawn())};
+	if (!Pawn) return EBTNodeResult::Failed;
+
+	auto const Wander{static_cast<FWander*>(WanderBehavior->Behavior.get())};
+	Wander->SetAngle(Pawn->GetActorRotation().Yaw);
+	
 	return EBTNodeResult::InProgress;
 }
 
