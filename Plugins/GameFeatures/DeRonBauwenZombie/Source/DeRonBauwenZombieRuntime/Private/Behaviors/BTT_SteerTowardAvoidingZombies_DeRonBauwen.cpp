@@ -67,6 +67,7 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 			CurrentPathIndex = 0;
 			FVector FirstPoint = CurrentPath->GetPathPoints()[0].Location;
 			SeekBehavior->Behavior->SetTarget(FTargetData{FirstPoint});
+			LastLocation = Pawn->GetActorLocation();
 			return EBTNodeResult::InProgress;
 		}
 	}
@@ -76,6 +77,13 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 
 void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
+	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
+	if (BlackboardComp->GetValueAsBool(IsZombieTooCloseKey.SelectedKeyName))
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
 	const AAIController* AIController{OwnerComp.GetAIOwner()};
 	if (!AIController)
 	{
@@ -89,11 +97,21 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 		return;
 	}
 
+	// Cancel task when we get stuck
 	UPawnMovementComponent* MovementComponent{Pawn->GetMovementComponent()};
 	auto const MovementSpeed{MovementComponent->GetMaxSpeed()};
 
 	if (!Steering)
 	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
+	}
+	
+	float const MoveAmount = FVector::DistSquared(Pawn->GetActorLocation(), LastLocation);
+	if (MoveAmount <= 1.0f) StuckTime += DeltaSeconds; else StuckTime = 0.f;
+	LastLocation = Pawn->GetActorLocation();
+
+	if (StuckTime > MaxStuckTime) {
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}

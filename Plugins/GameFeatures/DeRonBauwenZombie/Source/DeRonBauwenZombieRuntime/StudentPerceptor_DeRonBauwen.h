@@ -29,6 +29,7 @@ public:
 
 	ABaseItem* GetClosestRememberedItemOfType(EItemType type);
 	AHouse* GetClosestRememberedHouse(bool MarkVisited = true);
+	ABaseZombie* GetClosestZombie();
 	
 private:
 	UBlackboardComponent* BlackboardComp;

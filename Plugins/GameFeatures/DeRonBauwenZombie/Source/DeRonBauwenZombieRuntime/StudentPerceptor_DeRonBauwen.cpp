@@ -99,3 +99,21 @@ AHouse* UStudentPerceptor_DeRonBauwen::GetClosestRememberedHouse(bool MarkVisite
 	
 	return Closest;
 }
+
+ABaseZombie* UStudentPerceptor_DeRonBauwen::GetClosestZombie()
+{
+	ABaseZombie* Closest{};
+	double ClosestDistance{FLT_MAX};
+
+	for (auto const &Zombie: RememberedZombies)
+	{
+		double const Distance{FVector::DistSquared(Zombie->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+
+		if (Distance >= ClosestDistance) continue;
+		
+		Closest = Zombie;
+		ClosestDistance = Distance;
+	}
+
+	return Closest;
+}

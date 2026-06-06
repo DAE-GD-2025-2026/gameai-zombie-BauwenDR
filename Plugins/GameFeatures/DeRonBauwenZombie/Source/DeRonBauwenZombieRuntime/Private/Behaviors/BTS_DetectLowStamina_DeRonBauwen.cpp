@@ -20,7 +20,7 @@ void UBTS_DetectLowStamina_DeRonBauwen::TickNode(UBehaviorTreeComponent& OwnerCo
 	UStaminaComponent const *Stamina{Survivor->GetComponentByClass<UStaminaComponent>()};
 	if (!Inventory || !Stamina) return;
 
-	for (int It{5}; It > 1; --It)
+	for (int It{4}; It > 1; --It)
 	{
 		auto const FoodItem{Cast<AFood>(Inventory->GetInventory()[It])};
 		if (!FoodItem) continue;

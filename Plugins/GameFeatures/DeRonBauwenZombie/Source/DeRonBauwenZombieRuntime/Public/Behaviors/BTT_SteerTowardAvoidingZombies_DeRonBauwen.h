@@ -24,14 +24,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	FBlackboardKeySelector DestinationKey;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Blackboard")
+	FBlackboardKeySelector IsZombieTooCloseKey;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	float ArriveDistance{50.0f};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	float MaxStuckTime{0.3f};
 
 private:
 	std::unique_ptr<FBlendedSteering> Steering{};
 	std::unique_ptr<FBlendedSteering::FWeightedBehavior> SeekBehavior{};
 
+	FVector LastLocation{};
 	FNavPathSharedPtr CurrentPath{};
 	int32 CurrentPathIndex = 0;
 	float WaypointAcceptanceRadius = 100.f;
+	float StuckTime{};
 };
