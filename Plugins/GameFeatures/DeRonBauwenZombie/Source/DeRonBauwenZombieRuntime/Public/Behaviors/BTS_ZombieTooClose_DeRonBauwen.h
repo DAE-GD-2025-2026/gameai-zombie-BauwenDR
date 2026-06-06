@@ -17,10 +17,10 @@ protected:
 	FBlackboardKeySelector ClosestZombieKey;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Detection")
-	double ShotgunDistance{200.0};
+	double ShotgunDistance{400.0};
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Detection")
-	double PistolDistance{500.0};
+	double PistolDistance{800.0};
 	
 public:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;

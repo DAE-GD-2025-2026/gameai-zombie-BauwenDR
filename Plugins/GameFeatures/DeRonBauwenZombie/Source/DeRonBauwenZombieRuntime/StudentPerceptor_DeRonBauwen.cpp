@@ -16,17 +16,26 @@ UStudentPerceptor_DeRonBauwen::~UStudentPerceptor_DeRonBauwen()
 void UStudentPerceptor_DeRonBauwen::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (auto PerceptionComp = GetOwner()->GetComponentByClass<UAIPerceptionComponent>())
 	{
 		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated);
 	}
-	
+
 	if (auto AIController = Cast<AAIController>(GetOwner()->GetInstigatorController()))
 	{
 		BlackboardComp = AIController->GetBlackboardComponent();
 		SurvivorPawn = Cast<ASurvivorPawn>(AIController->GetPawn());
 	}
+}
+
+void UStudentPerceptor_DeRonBauwen::TickComponent(float DeltaTime, enum ELevelTick TickType,
+                                                  FActorComponentTickFunction* ThisTickFunction)
+{
+	RememberedZombies.RemoveAll([](ABaseZombie const *Zombie)
+	{
+		return !IsValid(Zombie);
+	});
 }
 
 void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -38,7 +47,7 @@ void UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated(AActor* Actor, FAIStimul
 			RememberedHouses.Add(House);
 		}
 	}
-	
+
 	if (ABaseItem* Item = Cast<ABaseItem>(Actor); Item != nullptr)
 	{
 		if (!RememberedItems.Contains(Item))
@@ -61,14 +70,20 @@ ABaseItem* UStudentPerceptor_DeRonBauwen::GetClosestRememberedItemOfType(EItemTy
 	ABaseItem* Closest{};
 	double ClosestDistance{FLT_MAX};
 
-	for (auto const &Item : RememberedItems)
+	for (const auto& Item : RememberedItems)
 	{
-		if (Item->GetItemType() != type) continue;
-		
-		double const Distance{FVector::DistSquared(Item->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+		if (Item->GetItemType() != type)
+		{
+			continue;
+		}
 
-		if (Distance >= ClosestDistance) continue;
-		
+		const double Distance{FVector::DistSquared(Item->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+
+		if (Distance >= ClosestDistance)
+		{
+			continue;
+		}
+
 		Closest = Item;
 		ClosestDistance = Distance;
 	}
@@ -80,13 +95,16 @@ AHouse* UStudentPerceptor_DeRonBauwen::GetClosestRememberedHouse(bool MarkVisite
 {
 	AHouse* Closest{};
 	double ClosestDistance{FLT_MAX};
-	
-	for (auto const &House : RememberedHouses)
-	{
-		double const Distance{FVector::DistSquared(House->GetActorLocation(), SurvivorPawn->GetActorLocation())};
 
-		if (Distance >= ClosestDistance) continue;
-		
+	for (const auto& House : RememberedHouses)
+	{
+		const double Distance{FVector::DistSquared(House->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+
+		if (Distance >= ClosestDistance)
+		{
+			continue;
+		}
+
 		Closest = House;
 		ClosestDistance = Distance;
 	}
@@ -96,7 +114,7 @@ AHouse* UStudentPerceptor_DeRonBauwen::GetClosestRememberedHouse(bool MarkVisite
 		RememberedVisitedHouses.Add(Closest);
 		RememberedHouses.Remove(Closest);
 	}
-	
+
 	return Closest;
 }
 
@@ -105,12 +123,15 @@ ABaseZombie* UStudentPerceptor_DeRonBauwen::GetClosestZombie()
 	ABaseZombie* Closest{};
 	double ClosestDistance{FLT_MAX};
 
-	for (auto const &Zombie: RememberedZombies)
+	for (const auto& Zombie : RememberedZombies)
 	{
-		double const Distance{FVector::DistSquared(Zombie->GetActorLocation(), SurvivorPawn->GetActorLocation())};
+		const double Distance{FVector::DistSquared(Zombie->GetActorLocation(), SurvivorPawn->GetActorLocation())};
 
-		if (Distance >= ClosestDistance) continue;
-		
+		if (Distance >= ClosestDistance)
+		{
+			continue;
+		}
+
 		Closest = Zombie;
 		ClosestDistance = Distance;
 	}

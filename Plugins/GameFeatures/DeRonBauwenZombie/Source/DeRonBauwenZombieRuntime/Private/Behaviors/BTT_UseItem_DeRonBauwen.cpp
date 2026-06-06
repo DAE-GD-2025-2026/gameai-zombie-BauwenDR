@@ -10,7 +10,6 @@ EBTNodeResult::Type UBTT_UseItem_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent
 	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	
 	auto const ItemIndex = BlackboardComp->GetValueAsInt(ItemToUseKey.SelectedKeyName);
-	if (ItemIndex < 0) return EBTNodeResult::Failed;
 	
 	AAIController const *AIController = OwnerComp.GetAIOwner();
 	if (!AIController) return EBTNodeResult::Failed;
@@ -20,9 +19,16 @@ EBTNodeResult::Type UBTT_UseItem_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent
 	
 	auto const Inventory{Survivor->GetComponentByClass<UInventoryComponent>()};
 	if (!Inventory) return EBTNodeResult::Failed;
+	
+	if (ItemIndex < 0 || ItemIndex >= Inventory->GetInventoryCapacity()) return EBTNodeResult::Failed;
+	if (Inventory->GetInventory()[ItemIndex] == nullptr) return EBTNodeResult::Failed;
+
+	if (Inventory->GetInventory()[ItemIndex]->GetValue() <= 0)
+	{
+		Inventory->RemoveItem(ItemIndex);
+	}
 
 	Inventory->UseItem(ItemIndex);
-	Inventory->RemoveItem(ItemIndex);
 
 	return EBTNodeResult::Succeeded;
 }

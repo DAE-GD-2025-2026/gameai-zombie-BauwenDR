@@ -1,5 +1,5 @@
 #pragma once
-#include "SteeringTypes.h"
+#include "SteeringDataTypes.h"
 
 // SteeringBehavior base, all steering behaviors should derive from this.
 class ISteeringBehavior

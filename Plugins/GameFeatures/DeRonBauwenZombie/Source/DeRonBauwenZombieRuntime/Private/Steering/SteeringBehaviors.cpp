@@ -1,6 +1,6 @@
 #include "Steering/SteeringBehaviors.h"
 
-#include "Steering/SteeringTypes.h"
+#include "Steering/SteeringDataTypes.h"
 
 // Seek
 //*******

@@ -29,6 +29,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	float ArriveDistance{50.0f};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
+	float EvadeDistance{250.0f};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Blackboard")
 	float MaxStuckTime{0.3f};
@@ -36,6 +39,8 @@ protected:
 private:
 	std::unique_ptr<FBlendedSteering> Steering{};
 	std::unique_ptr<FBlendedSteering::FWeightedBehavior> SeekBehavior{};
+
+	TArray<std::unique_ptr<FBlendedSteering::FWeightedBehavior>> FleeBehaviors{};
 
 	FVector LastLocation{};
 	FNavPathSharedPtr CurrentPath{};

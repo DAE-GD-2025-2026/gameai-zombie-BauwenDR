@@ -23,6 +23,7 @@ public:
 	virtual ~UStudentPerceptor_DeRonBauwen() override;
 	
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	virtual void OnPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
@@ -40,6 +41,4 @@ private:
 	TArray<ABaseZombie*> RememberedZombies{};
 	
 	TArray<AHouse*> RememberedVisitedHouses{};
-	
-	void ItemPerceptor(ABaseItem *NewItem);
 };
