@@ -17,19 +17,19 @@ void UStudentPerceptor_DeRonBauwen::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (auto PerceptionComp = GetOwner()->GetComponentByClass<UAIPerceptionComponent>())
+	if (auto *PerceptionComp{GetOwner()->GetComponentByClass<UAIPerceptionComponent>()})
 	{
 		PerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this, &UStudentPerceptor_DeRonBauwen::OnPerceptionUpdated);
 	}
 
-	if (auto AIController = Cast<AAIController>(GetOwner()->GetInstigatorController()))
+	if (auto *AiController{Cast<AAIController>(GetOwner()->GetInstigatorController())})
 	{
-		BlackboardComp = AIController->GetBlackboardComponent();
-		SurvivorPawn = Cast<ASurvivorPawn>(AIController->GetPawn());
+		BlackboardComp = AiController->GetBlackboardComponent();
+		SurvivorPawn = Cast<ASurvivorPawn>(AiController->GetPawn());
 	}
 }
 
-void UStudentPerceptor_DeRonBauwen::TickComponent(float DeltaTime, enum ELevelTick TickType,
+void UStudentPerceptor_DeRonBauwen::TickComponent(float DeltaTime, ELevelTick TickType,
                                                   FActorComponentTickFunction* ThisTickFunction)
 {
 	RememberedZombies.RemoveAll([](ABaseZombie const *Zombie)
@@ -137,6 +137,16 @@ ABaseZombie* UStudentPerceptor_DeRonBauwen::GetClosestZombie()
 	}
 
 	return Closest;
+}
+
+TArray<ABaseItem*> const& UStudentPerceptor_DeRonBauwen::GetItems()
+{
+	return RememberedItems;
+}
+
+TArray<AHouse*> const& UStudentPerceptor_DeRonBauwen::GetHouses()
+{
+	return RememberedHouses;
 }
 
 TArray<ABaseZombie*> const &UStudentPerceptor_DeRonBauwen::GetZombies()

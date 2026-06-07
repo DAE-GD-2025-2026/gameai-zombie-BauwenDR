@@ -31,6 +31,9 @@ public:
 	ABaseItem* GetClosestRememberedItemOfType(EItemType type);
 	AHouse* GetClosestRememberedHouse(bool MarkVisited = true);
 	ABaseZombie* GetClosestZombie();
+
+	TArray<ABaseItem*> const &GetItems();
+	TArray<AHouse*> const &GetHouses();
 	TArray<ABaseZombie*> const &GetZombies();
 
 private:
