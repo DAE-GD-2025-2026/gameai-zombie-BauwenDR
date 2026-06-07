@@ -1,7 +1,7 @@
 #include "Behaviors/BTT_PickupClosestItem_DeRonBauwen.h"
 
 #include "AIController.h"
-#include "InvHelper.h"
+#include "InvHelper_DeRonBauwen.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Common/InventoryComponent.h"
 #include "Items/BaseItem.h"
@@ -26,7 +26,7 @@ EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTre
 	auto const Inventory{Survivor->GetComponentByClass<UInventoryComponent>()};
 	if (!Inventory) return EBTNodeResult::Failed;
 	
-	auto const PickupSlot{InvHelper::GetIndexForType(Inventory, ItemToCollect->GetItemType())};
+	auto const PickupSlot{InvHelper_DeRonBauwen::GetIndexForType(Inventory, ItemToCollect->GetItemType())};
 	if (PickupSlot < 0) return EBTNodeResult::Failed;
 	
 	if (!Inventory->GrabItem(PickupSlot, ItemToCollect)) return EBTNodeResult::Failed;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Common/InventoryComponent.h"
 
-namespace InvHelper
+namespace InvHelper_DeRonBauwen
 {
 	int GetIndexForType(UInventoryComponent const *Inventory, EItemType Type);
 };

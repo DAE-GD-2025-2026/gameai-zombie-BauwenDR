@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 
 //SteeringParams (alias TargetData)
-struct FSteeringParams final //Also used as Target for SteeringBehaviors
+struct FSteeringParams_DeRonBauwen final //Also used as Target for SteeringBehaviors
 {
 	FVector Position;
 	float Orientation;
@@ -11,7 +11,7 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 	FVector LinearVelocity;
 	float AngularVelocity;
 
-	explicit FSteeringParams(const FVector& Position = FVector::ZeroVector, float Orientation = 0.f, 
+	explicit FSteeringParams_DeRonBauwen(const FVector& Position = FVector::ZeroVector, float Orientation = 0.f, 
 	                         const FVector& LinearVel = FVector::ZeroVector, float AngularVel = 0.f) :
 		Position(Position),
 		Orientation(Orientation),
@@ -28,7 +28,7 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 		AngularVelocity = 0.f;
 	}
 
-	FSteeringParams(const FSteeringParams& Other)
+	FSteeringParams_DeRonBauwen(const FSteeringParams_DeRonBauwen& Other)
 	{
 		Position = Other.Position;
 		Orientation = Other.Orientation;
@@ -36,7 +36,7 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 		AngularVelocity = Other.AngularVelocity;
 	}
 
-	FSteeringParams& operator=(const FSteeringParams& Other)
+	FSteeringParams_DeRonBauwen& operator=(const FSteeringParams_DeRonBauwen& Other)
 	{
 		Position = Other.Position;
 		Orientation = Other.Orientation;
@@ -46,29 +46,29 @@ struct FSteeringParams final //Also used as Target for SteeringBehaviors
 		return *this;
 	}
 
-	bool operator==(const FSteeringParams& Other) const
+	bool operator==(const FSteeringParams_DeRonBauwen& Other) const
 	{
 		return Position == Other.Position && Orientation == Other.Orientation && LinearVelocity == Other.LinearVelocity && AngularVelocity == Other.AngularVelocity;
 	}
 
-	bool operator!=(const FSteeringParams& Other) const
+	bool operator!=(const FSteeringParams_DeRonBauwen& Other) const
 	{
 		return Position != Other.Position || Orientation != Other.Orientation || LinearVelocity != Other.LinearVelocity || AngularVelocity != Other.AngularVelocity;
 	}
 };
 
-using FTargetData = FSteeringParams; //Alias for SteeringBehavior usage ( Bit clearer in its context ;) )
+using FTargetData_DeRonBauwen = FSteeringParams_DeRonBauwen; //Alias for SteeringBehavior usage ( Bit clearer in its context ;) )
 
-struct FSteeringOutput final
+struct FSteeringOutput_DeRonBauwen final
 {
 	FVector2D LinearVelocity{};
 	bool IsValid{true};
 
-	FSteeringOutput(const FVector& LinearVelocity = {0.0f, 0.0f, 0.0f})
+	FSteeringOutput_DeRonBauwen(const FVector& LinearVelocity = {0.0f, 0.0f, 0.0f})
 		: LinearVelocity(LinearVelocity)
 	{}
 
-	FSteeringOutput& operator=(const FSteeringOutput& Other)
+	FSteeringOutput_DeRonBauwen& operator=(const FSteeringOutput_DeRonBauwen& Other)
 	{
 		LinearVelocity = Other.LinearVelocity;
 		IsValid = Other.IsValid;
@@ -76,28 +76,28 @@ struct FSteeringOutput final
 		return *this;
 	}
 
-	FSteeringOutput& operator+(const FSteeringOutput& Other)
+	FSteeringOutput_DeRonBauwen& operator+(const FSteeringOutput_DeRonBauwen& Other)
 	{
 		LinearVelocity += Other.LinearVelocity;
 
 		return *this;
 	}
 
-	FSteeringOutput& operator*=(const FSteeringOutput& Other)
+	FSteeringOutput_DeRonBauwen& operator*=(const FSteeringOutput_DeRonBauwen& Other)
 	{
 		LinearVelocity = LinearVelocity * Other.LinearVelocity;
 
 		return *this;
 	}
 
-	FSteeringOutput& operator*=(float Factor)
+	FSteeringOutput_DeRonBauwen& operator*=(float Factor)
 	{
 		LinearVelocity = Factor * LinearVelocity;
 
 		return *this;
 	}
 
-	FSteeringOutput& operator/=(float Factor)
+	FSteeringOutput_DeRonBauwen& operator/=(float Factor)
 	{
 		LinearVelocity = LinearVelocity / Factor;
 

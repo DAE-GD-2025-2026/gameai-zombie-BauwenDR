@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "Steering/CombinedSteeringBehaviors.h"
+#include "Steering/CombinedSteeringBehaviors_DeRonBauwen.h"
 #include "BTT_WanderAvoidZombies_DeRonBauwen.generated.h"
 
 UCLASS()
@@ -27,8 +27,8 @@ protected:
 	float EvadePriority{0.7f};
 
 private:
-	std::unique_ptr<FBlendedSteering> Steering{};
-	std::unique_ptr<FBlendedSteering::FWeightedBehavior> WanderBehavior{};
+	std::unique_ptr<FBlendedSteering_DeRonBauwen> Steering{};
+	std::unique_ptr<FBlendedSteering_DeRonBauwen::FWeightedBehavior> WanderBehavior{};
 
-	TArray<std::unique_ptr<FBlendedSteering::FWeightedBehavior>> EvadeBehaviors{};
+	TArray<std::unique_ptr<FBlendedSteering_DeRonBauwen::FWeightedBehavior>> EvadeBehaviors{};
 };

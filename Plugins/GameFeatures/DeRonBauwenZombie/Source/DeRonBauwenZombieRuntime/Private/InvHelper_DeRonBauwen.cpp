@@ -1,4 +1,4 @@
-#include "InvHelper.h"
+#include "InvHelper_DeRonBauwen.h"
 
 #include <unordered_map>
 
@@ -15,7 +15,7 @@ namespace
 	};
 }
 
-int InvHelper::GetIndexForType(UInventoryComponent const* Inventory, EItemType Type)
+int InvHelper_DeRonBauwen::GetIndexForType(UInventoryComponent const* Inventory, EItemType Type)
 {
 	if (Type != EItemType::Food)
 	{

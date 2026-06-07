@@ -1,14 +1,14 @@
-#include "Steering/CombinedSteeringBehaviors.h"
+#include "Steering/CombinedSteeringBehaviors_DeRonBauwen.h"
 #include <algorithm>
 
-FBlendedSteering::FBlendedSteering(const std::vector<FWeightedBehavior*>& WeightedBehaviors)
+FBlendedSteering_DeRonBauwen::FBlendedSteering_DeRonBauwen(const std::vector<FWeightedBehavior*>& WeightedBehaviors)
 	: WeightedBehaviors(WeightedBehaviors)
 {
 };
 
 //****************
 //BLENDED STEERING
-float* FBlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
+float* FBlendedSteering_DeRonBauwen::GetWeight(ISteeringBehavior_DeRonBauwen* const SteeringBehavior)
 {
 	const auto It{
 		std::ranges::find_if(WeightedBehaviors, [SteeringBehavior](const FWeightedBehavior *Elem)
@@ -25,13 +25,13 @@ float* FBlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
 	return nullptr;
 }
 
-FSteeringOutput FBlendedSteering::CalculateSteering(float DeltaT, AActor& Agent)
+FSteeringOutput_DeRonBauwen FBlendedSteering_DeRonBauwen::CalculateSteering(float DeltaT, AActor& Agent)
 {
-	FSteeringOutput BlendedOutput{};
+	FSteeringOutput_DeRonBauwen BlendedOutput{};
 
 	for (const auto& Behaviour : WeightedBehaviors)
 	{
-		FSteeringOutput Steering{Behaviour->Behavior->CalculateSteering(DeltaT, Agent)};
+		FSteeringOutput_DeRonBauwen Steering{Behaviour->Behavior->CalculateSteering(DeltaT, Agent)};
 
 		if (Steering.IsValid)
 		{
@@ -45,9 +45,9 @@ FSteeringOutput FBlendedSteering::CalculateSteering(float DeltaT, AActor& Agent)
 
 //*****************
 //PRIORITY STEERING
-FSteeringOutput FPrioritySteering::CalculateSteering(float DeltaT, AActor& Agent)
+FSteeringOutput_DeRonBauwen FPrioritySteering::CalculateSteering(float DeltaT, AActor& Agent)
 {
-	FSteeringOutput Steering = {};
+	FSteeringOutput_DeRonBauwen Steering = {};
 
 	for (const auto& Behavior : PriorityBehaviors)
 	{

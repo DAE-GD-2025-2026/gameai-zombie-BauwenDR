@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "NavigationPath.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "Steering/CombinedSteeringBehaviors.h"
+#include "Steering/CombinedSteeringBehaviors_DeRonBauwen.h"
 #include "UObject/Object.h"
 #include "BTT_SteerTowardAvoidingZombies_DeRonBauwen.generated.h"
 
@@ -38,11 +38,11 @@ protected:
 	float MaxStuckTime{0.5f};
 
 private:
-	std::unique_ptr<FBlendedSteering> Steering{};
-	std::unique_ptr<FBlendedSteering::FWeightedBehavior> SeekBehavior{};
-	std::unique_ptr<FBlendedSteering::FWeightedBehavior> WanderBehavior{};
+	std::unique_ptr<FBlendedSteering_DeRonBauwen> Steering{};
+	std::unique_ptr<FBlendedSteering_DeRonBauwen::FWeightedBehavior> SeekBehavior{};
+	std::unique_ptr<FBlendedSteering_DeRonBauwen::FWeightedBehavior> WanderBehavior{};
 
-	TArray<std::unique_ptr<FBlendedSteering::FWeightedBehavior>> EvadeBehaviors{};
+	TArray<std::unique_ptr<FBlendedSteering_DeRonBauwen::FWeightedBehavior>> EvadeBehaviors{};
 
 	FVector LastLocation{};
 	FNavPathSharedPtr CurrentPath{};

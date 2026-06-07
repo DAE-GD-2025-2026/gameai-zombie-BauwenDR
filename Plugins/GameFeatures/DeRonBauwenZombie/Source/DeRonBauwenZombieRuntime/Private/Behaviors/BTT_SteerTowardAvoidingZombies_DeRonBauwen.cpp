@@ -11,9 +11,9 @@ UBTT_SteerTowardAvoidingZombies_DeRonBauwen::UBTT_SteerTowardAvoidingZombies_DeR
 {
 	bNotifyTick = true;
 
-	SeekBehavior = std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FSeek>(), 0.2f);
-	WanderBehavior = std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FWander>(), 0.1f);
-	Steering = std::make_unique<FBlendedSteering>(FBlendedSteering{{SeekBehavior.get(), WanderBehavior.get()}});
+	SeekBehavior = std::make_unique<FBlendedSteering_DeRonBauwen::FWeightedBehavior>(std::make_unique<FSeek_DeRonBauwen>(), 0.2f);
+	WanderBehavior = std::make_unique<FBlendedSteering_DeRonBauwen::FWeightedBehavior>(std::make_unique<FWander_DeRonBauwen>(), 0.1f);
+	Steering = std::make_unique<FBlendedSteering_DeRonBauwen>(FBlendedSteering_DeRonBauwen{{SeekBehavior.get(), WanderBehavior.get()}});
 }
 
 EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 			CurrentPath = Result->GetPath();
 			CurrentPathIndex = 0;
 			FVector const FirstPoint{CurrentPath->GetPathPoints()[0].Location};
-			SeekBehavior->Behavior->SetTarget(FTargetData{FirstPoint});
+			SeekBehavior->Behavior->SetTarget(FTargetData_DeRonBauwen{FirstPoint});
 			LastLocation = Pawn->GetActorLocation();
 			return EBTNodeResult::InProgress;
 		}
@@ -78,11 +78,11 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 	{
 		if (EvadeBehaviors.Num() <= It)
 		{
-			EvadeBehaviors.Add(std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FEvade>(EvadeDistance), EvadePriority));
+			EvadeBehaviors.Add(std::make_unique<FBlendedSteering_DeRonBauwen::FWeightedBehavior>(std::make_unique<FEvade_DeRonBauwen>(EvadeDistance), EvadePriority));
 			Steering->AddBehaviour(EvadeBehaviors.Last().get());
 		}
 
-		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData_DeRonBauwen
 		{
 			Perceptor->GetZombies()[It]->GetActorLocation(),
 			0.0f,
@@ -92,7 +92,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 
 	for (int It{Perceptor->GetZombies().Num()}; It < EvadeBehaviors.Num(); ++It)
 	{
-		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData_DeRonBauwen{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
 	}
 
 	// Cancel task when we get stuck
@@ -125,9 +125,9 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 
 		FVector Waypoint{Points[CurrentPathIndex].Location};
 		Waypoint.Z = Pawn->GetActorLocation().Z; // keep on ground
-		SeekBehavior->Behavior->SetTarget(FTargetData{Waypoint});
+		SeekBehavior->Behavior->SetTarget(FTargetData_DeRonBauwen{Waypoint});
 
-		FSteeringOutput const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
+		FSteeringOutput_DeRonBauwen const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
 		FVector const TargetVel{Out.LinearVelocity, 0.0f};
 		Pawn->SetActorRotation(TargetVel.Rotation());
 		Pawn->AddMovementInput(TargetVel * MovementSpeed * DeltaSeconds);
@@ -139,7 +139,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 			if (CurrentPathIndex < Points.Num())
 			{
 				FVector const Next{Points[CurrentPathIndex].Location};
-				SeekBehavior->Behavior->SetTarget(FTargetData{Next});
+				SeekBehavior->Behavior->SetTarget(FTargetData_DeRonBauwen{Next});
 			}
 		}
 	}

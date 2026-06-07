@@ -9,8 +9,8 @@ UBTT_WanderAvoidZombies_DeRonBauwen::UBTT_WanderAvoidZombies_DeRonBauwen()
 {
 	bNotifyTick = true;
 
-	WanderBehavior = std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FWander>(), 0.1f);
-	Steering = std::make_unique<FBlendedSteering>(FBlendedSteering{{WanderBehavior.get()}});
+	WanderBehavior = std::make_unique<FBlendedSteering_DeRonBauwen::FWeightedBehavior>(std::make_unique<FWander_DeRonBauwen>(), 0.1f);
+	Steering = std::make_unique<FBlendedSteering_DeRonBauwen>(FBlendedSteering_DeRonBauwen{{WanderBehavior.get()}});
 }
 
 EBTNodeResult::Type UBTT_WanderAvoidZombies_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -21,7 +21,7 @@ EBTNodeResult::Type UBTT_WanderAvoidZombies_DeRonBauwen::ExecuteTask(UBehaviorTr
 	ASurvivorPawn const *Pawn{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Pawn) return EBTNodeResult::Failed;
 
-	auto const Wander{static_cast<FWander*>(WanderBehavior->Behavior.get())};
+	auto const Wander{static_cast<FWander_DeRonBauwen*>(WanderBehavior->Behavior.get())};
 	Wander->SetAngle(Pawn->GetActorRotation().Yaw);
 	
 	return EBTNodeResult::InProgress;
@@ -66,11 +66,11 @@ void UBTT_WanderAvoidZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& Owner
 	{
 		if (EvadeBehaviors.Num() <= It)
 		{
-			EvadeBehaviors.Add(std::make_unique<FBlendedSteering::FWeightedBehavior>(std::make_unique<FEvade>(EvadeDistance), EvadePriority));
+			EvadeBehaviors.Add(std::make_unique<FBlendedSteering_DeRonBauwen::FWeightedBehavior>(std::make_unique<FEvade_DeRonBauwen>(EvadeDistance), EvadePriority));
 			Steering->AddBehaviour(EvadeBehaviors.Last().get());
 		}
 
-		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData_DeRonBauwen
 		{
 			Perceptor->GetZombies()[It]->GetActorLocation(),
 			0.0f,
@@ -80,10 +80,10 @@ void UBTT_WanderAvoidZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& Owner
 
 	for (int It{Perceptor->GetZombies().Num()}; It < EvadeBehaviors.Num(); ++It)
 	{
-		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
+		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData_DeRonBauwen{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
 	}
 	
-	FSteeringOutput const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
+	FSteeringOutput_DeRonBauwen const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
 	FVector const TargetVel{Out.LinearVelocity, 0.0f};
 	Pawn->SetActorRotation(TargetVel.Rotation());
 	Pawn->AddMovementInput(TargetVel * MovementSpeed * DeltaSeconds);
