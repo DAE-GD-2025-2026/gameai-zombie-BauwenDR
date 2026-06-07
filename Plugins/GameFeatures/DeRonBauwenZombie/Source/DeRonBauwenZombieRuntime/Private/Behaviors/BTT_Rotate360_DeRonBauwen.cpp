@@ -12,27 +12,26 @@ struct FBTRotate360Memory
 UBTT_Rotate360_DeRonBauwen::UBTT_Rotate360_DeRonBauwen()
 {
 	NodeName = TEXT("Rotate 360");
-
 	bNotifyTick = true;
 }
 
 EBTNodeResult::Type UBTT_Rotate360_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	FBTRotate360Memory* Memory = reinterpret_cast<FBTRotate360Memory*>(NodeMemory);
+	FBTRotate360Memory* Memory{reinterpret_cast<FBTRotate360Memory*>(NodeMemory)};
 	Memory->Elapsed = 0.f;
 	Memory->bInitialized = true;
 
-	AAIController* AiController = OwnerComp.GetAIOwner();
+	AAIController* AiController{OwnerComp.GetAIOwner()};
 	if (!AiController) return EBTNodeResult::Failed;
 
-	APawn* Pawn = AiController->GetPawn();
+	APawn* Pawn{AiController->GetPawn()};
 	if (!Pawn) return EBTNodeResult::Failed;
 
 	Memory->StartYaw = Pawn->GetActorRotation().Yaw;
 
 	if (Duration <= 0.f)
 	{
-		FRotator NewRot = Pawn->GetActorRotation();
+		FRotator NewRot{Pawn->GetActorRotation()};
 		NewRot.Yaw = FRotator::NormalizeAxis(Memory->StartYaw + 360.f);
 		Pawn->SetActorRotation(NewRot);
 		return EBTNodeResult::Succeeded;
@@ -43,16 +42,16 @@ EBTNodeResult::Type UBTT_Rotate360_DeRonBauwen::ExecuteTask(UBehaviorTreeCompone
 
 void UBTT_Rotate360_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	FBTRotate360Memory* Memory = reinterpret_cast<FBTRotate360Memory*>(NodeMemory);
+	FBTRotate360Memory* Memory{reinterpret_cast<FBTRotate360Memory*>(NodeMemory)};
 
-	AAIController* AIController = OwnerComp.GetAIOwner();
-	if (!AIController)
+	AAIController const *AiController{OwnerComp.GetAIOwner()};
+	if (!AiController)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 		return;
 	}
 
-	APawn* Pawn = AIController->GetPawn();
+	APawn* Pawn{AiController->GetPawn()};
 	if (!Pawn)
 	{
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
@@ -60,13 +59,12 @@ void UBTT_Rotate360_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uin
 	}
 
 	Memory->Elapsed += DeltaSeconds;
-	float Alpha = FMath::Clamp(Memory->Elapsed / Duration, 0.f, 1.f);
-
-	float YawOffset = 360.f * Alpha;
-	float TargetYaw = Memory->StartYaw + YawOffset;
+	float const Alpha{FMath::Clamp(Memory->Elapsed / Duration, 0.f, 1.f)};
+	float const YawOffset{360.f * Alpha};
+	float TargetYaw{Memory->StartYaw + YawOffset};
 	TargetYaw = FRotator::NormalizeAxis(TargetYaw);
 
-	FRotator NewRot = Pawn->GetActorRotation();
+	FRotator NewRot{Pawn->GetActorRotation()};
 	NewRot.Yaw = TargetYaw;
 	Pawn->SetActorRotation(NewRot);
 

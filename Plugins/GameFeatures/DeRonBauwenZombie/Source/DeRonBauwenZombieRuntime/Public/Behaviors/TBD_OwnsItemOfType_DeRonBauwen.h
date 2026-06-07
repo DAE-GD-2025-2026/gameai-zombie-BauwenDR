@@ -10,9 +10,6 @@ class DERONBAUWENZOMBIERUNTIME_API UTBD_OwnsItemOfType_DeRonBauwen final : publi
 {
 	GENERATED_BODY()
 	
-public:
-	UTBD_OwnsItemOfType_DeRonBauwen();
-
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "BehaviorTree")
 	EItemType ItemType;

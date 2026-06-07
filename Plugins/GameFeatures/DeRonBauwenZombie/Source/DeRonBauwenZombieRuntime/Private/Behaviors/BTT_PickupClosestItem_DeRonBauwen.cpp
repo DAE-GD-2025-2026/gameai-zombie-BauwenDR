@@ -8,18 +8,19 @@
 
 EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
+	auto Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return EBTNodeResult::Failed;
 	
-	auto const ItemFromMap = BlackboardComp->GetValueAsObject(ClosestItemPtrKey.SelectedKeyName);
+	auto const ItemFromMap{Blackboard->GetValueAsObject(ClosestItemPtrKey.SelectedKeyName)};
 	if (!ItemFromMap) return EBTNodeResult::Failed;
 	
 	auto const ItemToCollect{Cast<ABaseItem>(ItemFromMap)};
 	if (!ItemToCollect) return EBTNodeResult::Failed;
 	
-	AAIController const *AIController = OwnerComp.GetAIOwner();
+	AAIController const *AIController{OwnerComp.GetAIOwner()};
 	if (!AIController) return EBTNodeResult::Failed;
 
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Survivor) return EBTNodeResult::Failed;
 	
 	auto const Inventory{Survivor->GetComponentByClass<UInventoryComponent>()};
@@ -29,7 +30,7 @@ EBTNodeResult::Type UBTT_PickupClosestItem_DeRonBauwen::ExecuteTask(UBehaviorTre
 	if (PickupSlot < 0) return EBTNodeResult::Failed;
 	
 	if (!Inventory->GrabItem(PickupSlot, ItemToCollect)) return EBTNodeResult::Failed;
-	BlackboardComp->ClearValue(ClosestItemPtrKey.SelectedKeyName);
+	Blackboard->ClearValue(ClosestItemPtrKey.SelectedKeyName);
 
 	return EBTNodeResult::Succeeded;
 }

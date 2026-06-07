@@ -19,7 +19,8 @@ UBTT_SteerTowardAvoidingZombies_DeRonBauwen::UBTT_SteerTowardAvoidingZombies_DeR
 EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 	UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
+	UBlackboardComponent* Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return EBTNodeResult::Failed;
 
 	AAIController const*AiController{OwnerComp.GetAIOwner()};
 	if (!AiController) return EBTNodeResult::Failed;
@@ -30,8 +31,8 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 	
 	if (!Steering) return EBTNodeResult::Failed;
 
-	const auto Destination{BlackboardComp->GetValueAsVector(DestinationKey.SelectedKeyName)};
-	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	const auto Destination{Blackboard->GetValueAsVector(DestinationKey.SelectedKeyName)};
+	UNavigationSystemV1* NavSys{FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld())};
 	if (NavSys && Pawn)
 	{
 		auto Result{NavSys->FindPathToLocationSynchronously(GetWorld(), AiController->GetNavAgentLocation(), Destination, Pawn)};
@@ -39,7 +40,7 @@ EBTNodeResult::Type UBTT_SteerTowardAvoidingZombies_DeRonBauwen::ExecuteTask(
 		{
 			CurrentPath = Result->GetPath();
 			CurrentPathIndex = 0;
-			FVector FirstPoint = CurrentPath->GetPathPoints()[0].Location;
+			FVector const FirstPoint{CurrentPath->GetPathPoints()[0].Location};
 			SeekBehavior->Behavior->SetTarget(FTargetData{FirstPoint});
 			LastLocation = Pawn->GetActorLocation();
 			return EBTNodeResult::InProgress;
@@ -104,7 +105,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 		return;
 	}
 	
-	float const MoveAmount = FVector::DistSquared(Pawn->GetActorLocation(), LastLocation);
+	float const MoveAmount{static_cast<float>(FVector::DistSquared(Pawn->GetActorLocation(), LastLocation))};
 	if (MoveAmount <= 1.0f) StuckTime += DeltaSeconds; else StuckTime = 0.f;
 	LastLocation = Pawn->GetActorLocation();
 
@@ -115,19 +116,19 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 
 	if (CurrentPath->IsValid())
 	{
-		const TArray<FNavPathPoint>& Points = CurrentPath->GetPathPoints();
+		const TArray<FNavPathPoint>& Points{CurrentPath->GetPathPoints()};
 		if (CurrentPathIndex >= Points.Num())
 		{
 			TaskFinished(OwnerComp, EBTNodeResult::Succeeded);
 			return;
 		}
 
-		FVector Waypoint = Points[CurrentPathIndex].Location;
+		FVector Waypoint{Points[CurrentPathIndex].Location};
 		Waypoint.Z = Pawn->GetActorLocation().Z; // keep on ground
 		SeekBehavior->Behavior->SetTarget(FTargetData{Waypoint});
 
-		const FSteeringOutput Out = Steering->CalculateSteering(DeltaSeconds, *Pawn);
-		const FVector TargetVel{Out.LinearVelocity, 0.0f};
+		FSteeringOutput const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
+		FVector const TargetVel{Out.LinearVelocity, 0.0f};
 		Pawn->SetActorRotation(TargetVel.Rotation());
 		Pawn->AddMovementInput(TargetVel * MovementSpeed * DeltaSeconds);
 
@@ -137,7 +138,7 @@ void UBTT_SteerTowardAvoidingZombies_DeRonBauwen::TickTask(UBehaviorTreeComponen
 			
 			if (CurrentPathIndex < Points.Num())
 			{
-				FVector Next = Points[CurrentPathIndex].Location;
+				FVector const Next{Points[CurrentPathIndex].Location};
 				SeekBehavior->Behavior->SetTarget(FTargetData{Next});
 			}
 		}

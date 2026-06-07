@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Behaviors/BTT_TargetClosestHouse_DeRonBauwen.h"
 
 #include "AIController.h"
@@ -10,18 +7,21 @@
 
 EBTNodeResult::Type UBTT_TargetClosestHouse_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	UBlackboardComponent* Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return EBTNodeResult::Failed;
 
-	AAIController* AIController{OwnerComp.GetAIOwner()};
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	AAIController const *AiController{OwnerComp.GetAIOwner()};
+	if (!AiController) return EBTNodeResult::Failed;
+	
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AiController->GetPawn())};
+	if (!Survivor) return EBTNodeResult::Failed;
+	
 	UStudentPerceptor_DeRonBauwen* Perceptor{Survivor->GetComponentByClass<UStudentPerceptor_DeRonBauwen>()};
+	if (!Perceptor) return EBTNodeResult::Failed;
 	
-	AHouse* ClosestHouse{Perceptor->GetClosestRememberedHouse()};
-	if (!ClosestHouse)
-	{
-		return EBTNodeResult::Failed;
-	}
+	AHouse const *ClosestHouse{Perceptor->GetClosestRememberedHouse()};
+	if (!ClosestHouse) return EBTNodeResult::Failed;
 	
-	BlackboardComp->SetValueAsVector(ResultPositionKey.SelectedKeyName, ClosestHouse->GetActorLocation());
+	Blackboard->SetValueAsVector(ResultPositionKey.SelectedKeyName, ClosestHouse->GetActorLocation());
 	return EBTNodeResult::Succeeded;
 }

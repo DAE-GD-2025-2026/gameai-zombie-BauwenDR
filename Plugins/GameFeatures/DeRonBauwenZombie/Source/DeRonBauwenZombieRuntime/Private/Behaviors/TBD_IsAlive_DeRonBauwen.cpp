@@ -8,10 +8,10 @@ class ASurvivorPawn;
 
 bool UTBD_IsAlive_DeRonBauwen::CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const
 {
-	AAIController const *AIController = OwnerComp.GetAIOwner();
+	AAIController const *AIController{OwnerComp.GetAIOwner()};
 	if (!AIController) return false;
 		
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Survivor) return false;
 
 	UHealthComponent const *Health{Survivor->GetComponentByClass<UHealthComponent>()};

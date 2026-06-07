@@ -8,12 +8,13 @@
 
 void UBTS_DetectLowStamina_DeRonBauwen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	auto Blackboard = OwnerComp.GetBlackboardComponent();
+	auto const Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return;
 	
-	AAIController const *AIController = OwnerComp.GetAIOwner();
+	AAIController const *AIController{OwnerComp.GetAIOwner()};
 	if (!AIController) return;
 		
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Survivor) return;
 
 	UInventoryComponent const *Inventory{Survivor->GetComponentByClass<UInventoryComponent>()};

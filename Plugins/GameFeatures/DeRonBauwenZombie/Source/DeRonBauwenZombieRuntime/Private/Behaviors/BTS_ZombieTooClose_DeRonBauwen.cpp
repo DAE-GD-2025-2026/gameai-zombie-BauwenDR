@@ -9,7 +9,8 @@
 
 void UBTS_ZombieTooClose_DeRonBauwen::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
-	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
+	UBlackboardComponent* Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return;
 
 	AAIController const *AIController{OwnerComp.GetAIOwner()};
 	if (!AIController) return;
@@ -28,7 +29,7 @@ void UBTS_ZombieTooClose_DeRonBauwen::TickNode(UBehaviorTreeComponent& OwnerComp
 
 	if (!GunItem || !ClosestZombie)
 	{
-		BlackboardComp->SetValueAsBool(IsZombieTooCloseKey.SelectedKeyName, false);
+		Blackboard->SetValueAsBool(IsZombieTooCloseKey.SelectedKeyName, false);
 		return;
 	}
 
@@ -40,6 +41,6 @@ void UBTS_ZombieTooClose_DeRonBauwen::TickNode(UBehaviorTreeComponent& OwnerComp
 		|| (!IsShotGun && Distance < PistolDistance * PistolDistance)
 	};
 
-	BlackboardComp->SetValueAsBool(IsZombieTooCloseKey.SelectedKeyName, ShouldShoot);
-	BlackboardComp->SetValueAsVector(ClosestZombieKey.SelectedKeyName, ClosestZombie->GetActorLocation());
+	Blackboard->SetValueAsBool(IsZombieTooCloseKey.SelectedKeyName, ShouldShoot);
+	Blackboard->SetValueAsVector(ClosestZombieKey.SelectedKeyName, ClosestZombie->GetActorLocation());
 }

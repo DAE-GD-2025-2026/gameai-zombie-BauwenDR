@@ -7,14 +7,15 @@
 
 EBTNodeResult::Type UBTT_UseItem_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
+	auto Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return EBTNodeResult::Failed;
 	
-	auto const ItemIndex = BlackboardComp->GetValueAsInt(ItemToUseKey.SelectedKeyName);
+	auto const ItemIndex{Blackboard->GetValueAsInt(ItemToUseKey.SelectedKeyName)};
 	
-	AAIController const *AIController = OwnerComp.GetAIOwner();
+	AAIController const *AIController{OwnerComp.GetAIOwner()};
 	if (!AIController) return EBTNodeResult::Failed;
 
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AIController->GetPawn())};
 	if (!Survivor) return EBTNodeResult::Failed;
 	
 	auto const Inventory{Survivor->GetComponentByClass<UInventoryComponent>()};

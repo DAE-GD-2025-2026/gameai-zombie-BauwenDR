@@ -30,16 +30,13 @@ EBTNodeResult::Type UBTT_WanderAvoidZombies_DeRonBauwen::ExecuteTask(UBehaviorTr
 void UBTT_WanderAvoidZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 	float DeltaSeconds)
 {
-	UBlackboardComponent* BlackboardComp{OwnerComp.GetBlackboardComponent()};
-
-	const float NewCountdown{BlackboardComp->GetValueAsFloat(TimerCountdownKey.SelectedKeyName) - DeltaSeconds};
-	BlackboardComp->SetValueAsFloat(TimerCountdownKey.SelectedKeyName, NewCountdown);
-
-	if (NewCountdown <= 0.0f)
+	UBlackboardComponent* Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard)
 	{
-		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
+		return;
 	}
-	
+
 	const AAIController* AIController{OwnerComp.GetAIOwner()};
 	if (!AIController)
 	{
@@ -86,8 +83,8 @@ void UBTT_WanderAvoidZombies_DeRonBauwen::TickTask(UBehaviorTreeComponent& Owner
 		EvadeBehaviors[It]->Behavior->SetTarget(FTargetData{FVector{0.0f, 0.0f, -2.0f * EvadeDistance}});
 	}
 	
-	const FSteeringOutput Out = Steering->CalculateSteering(DeltaSeconds, *Pawn);
-	const FVector TargetVel{Out.LinearVelocity, 0.0f};
+	FSteeringOutput const Out{Steering->CalculateSteering(DeltaSeconds, *Pawn)};
+	FVector const TargetVel{Out.LinearVelocity, 0.0f};
 	Pawn->SetActorRotation(TargetVel.Rotation());
 	Pawn->AddMovementInput(TargetVel * MovementSpeed * DeltaSeconds);
 }

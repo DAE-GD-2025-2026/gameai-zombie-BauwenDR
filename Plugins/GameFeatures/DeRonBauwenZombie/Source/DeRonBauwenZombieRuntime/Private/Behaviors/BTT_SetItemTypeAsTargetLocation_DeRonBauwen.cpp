@@ -9,21 +9,28 @@
 EBTNodeResult::Type UBTT_SetItemTypeAsTargetLocation_DeRonBauwen::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackboardComp = OwnerComp.GetBlackboardComponent();
+	UBlackboardComponent* Blackboard{OwnerComp.GetBlackboardComponent()};
+	if (!Blackboard) return EBTNodeResult::Failed;
 
-	AAIController* AIController{OwnerComp.GetAIOwner()};
-	ASurvivorPawn const *Survivor = Cast<ASurvivorPawn>(AIController->GetPawn());
+	AAIController const *AiController{OwnerComp.GetAIOwner()};
+	if (!AiController) return EBTNodeResult::Failed;
+	
+	ASurvivorPawn const *Survivor{Cast<ASurvivorPawn>(AiController->GetPawn())};
+	if (!Survivor) return EBTNodeResult::Failed;
+	
 	UStudentPerceptor_DeRonBauwen* Perceptor{Survivor->GetComponentByClass<UStudentPerceptor_DeRonBauwen>()};
+	if (!Perceptor) return EBTNodeResult::Failed;
 	
 	ABaseItem* ClosestItem{Perceptor->GetClosestRememberedItemOfType(ItemType)};
 	if (!ClosestItem || !IsValid(ClosestItem))
 	{
-		BlackboardComp->ClearValue(ResultItemKey.SelectedKeyName);
-		BlackboardComp->ClearValue(ResultItemLocationKey.SelectedKeyName);
+		Blackboard->ClearValue(ResultItemKey.SelectedKeyName);
+		Blackboard->ClearValue(ResultItemLocationKey.SelectedKeyName);
 		return EBTNodeResult::Failed;
 	}
 	
-	BlackboardComp->SetValueAsObject(ResultItemKey.SelectedKeyName, ClosestItem);
-	BlackboardComp->SetValueAsVector(ResultItemLocationKey.SelectedKeyName, ClosestItem->GetActorLocation());
+	Blackboard->SetValueAsObject(ResultItemKey.SelectedKeyName, ClosestItem);
+	Blackboard->SetValueAsVector(ResultItemLocationKey.SelectedKeyName, ClosestItem->GetActorLocation());
+	
 	return EBTNodeResult::Succeeded;
 }
